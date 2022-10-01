@@ -1,8 +1,8 @@
 const axios = require('axios');
-const COOKIES = '这里填入你的cookie';
+const COOKIES = process.env['GLaDOS_Cookie'];   // 需要的环境变量
 
 
-const Bytes2GB = 1073741824;
+const Bytes2GB = 1 * 1024 * 1024 * 1024;
 const checkIn = async (cookie) => {
     return axios({
         method: 'post',
@@ -10,7 +10,7 @@ const checkIn = async (cookie) => {
         headers: {
             'Cookie': cookie,
             'origin': 'https://glados.rocks',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.4896.127 Safari/537.36',
             'content-type': 'application/json;charset=UTF-8',
             'content-length': 26
         },
