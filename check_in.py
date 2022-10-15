@@ -6,13 +6,14 @@
 # ==============================================================================
 import json
 import math
+import os
 
 import requests
 
-
 GET_STATUS_URL = "https://glados.rocks/api/user/status"
 CHECK_IN_URL = "https://glados.rocks/api/user/checkin"
-COOKIE_STR = "your cookie"
+COOKIE_STR = os.environ.get('GLaDOS_Cookie')
+QYWX_KEY = os.environ.get('GLaDOS_Cookie')
 
 
 class GladosCheckIn:
@@ -35,7 +36,7 @@ class GladosCheckIn:
             raise Exception("get status error")
 
         self.res["email"] = data["data"]["email"]
-        self.res["left_days"] = data["data"]["leftDays"]
+        self.res["left_days"] = float(data["data"]["leftDays"])
         self.res["traffic"] = self.convert_traffic_size(int(data["data"]["traffic"]))
         self.res["used_days"] = data["data"]["days"]
 
@@ -59,6 +60,7 @@ class GladosCheckIn:
         print("流量: {}".format(self.res["traffic"]))
         print("已用天数: {}".format(self.res["used_days"]))
         print("签到情况: {}".format(self.res["message"]))
+        self.wechat(self.res)
 
     @staticmethod
     def resp_json(resp):
@@ -79,6 +81,30 @@ class GladosCheckIn:
         p = math.pow(1024, i)
         s = round(size_bytes / p, 2)
         return "%s %s" % (s, size_name[i])
+
+    @staticmethod
+    def wechat(res):
+        if QYWX_KEY:
+            url = f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={QYWX_KEY}'
+            text = 'GlaDOS签到详情'
+            desp = "账号: {}\n剩余天数: {}\n流量: {}\n已用天数: {}\n签到情况: {}".format(
+                res["email"],
+                res["left_days"],
+                res["traffic"],
+                res["used_days"],
+                res["message"]
+            )
+            json_data = {
+                'msgtype': 'text',
+                'text': {
+                    'content': f'{text}\n\n{desp}',
+                }
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            rst = requests.post(url, json=json_data, headers=headers).text
+            print(rst)
 
 
 if __name__ == '__main__':
