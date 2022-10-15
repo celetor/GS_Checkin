@@ -12,18 +12,18 @@ import requests
 
 GET_STATUS_URL = "https://glados.rocks/api/user/status"
 CHECK_IN_URL = "https://glados.rocks/api/user/checkin"
-COOKIE_STR = os.environ.get('GLaDOS_Cookie')
+GLaDOS_Cookie = os.environ.get('GLaDOS_Cookie')
 QYWX_KEY = os.environ.get('QYWX_KEY')
 
 
 class GladosCheckIn:
 
-    def __init__(self):
+    def __init__(self, one_cookie):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 \
             (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
         }
-        self.cookies = {cookie.split("=")[0]: cookie.split("=")[1] for cookie in COOKIE_STR.split(";")}
+        self.cookies = {cookie.split("=")[0]: cookie.split("=")[1] for cookie in one_cookie.split(";")}
         self.res = {}
 
     def get_status(self):
@@ -108,5 +108,8 @@ class GladosCheckIn:
 
 
 if __name__ == '__main__':
-    checkin = GladosCheckIn()
-    checkin.check_in().get_status().print_result()
+    if GLaDOS_Cookie:
+        all_cookies = GLaDOS_Cookie.split('&&')
+        for per_cookie in all_cookies:
+            checkin = GladosCheckIn(per_cookie)
+            checkin.check_in().get_status().print_result()
