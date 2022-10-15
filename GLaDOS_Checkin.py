@@ -14,6 +14,7 @@ GET_STATUS_URL = "https://glados.rocks/api/user/status"
 CHECK_IN_URL = "https://glados.rocks/api/user/checkin"
 COOKIE_STR = os.environ.get('GLaDOS_Cookie')
 QYWX_KEY = os.environ.get('GLaDOS_Cookie')
+GLaDOS_SEND = os.environ.get('GLaDOS_SEND')
 
 
 class GladosCheckIn:
@@ -84,7 +85,7 @@ class GladosCheckIn:
 
     @staticmethod
     def wechat(res):
-        if QYWX_KEY:
+        if QYWX_KEY and GLaDOS_SEND:
             url = f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={QYWX_KEY}'
             text = 'GlaDOS签到详情'
             desp = "账号: {}\n剩余天数: {}\n流量: {}\n已用天数: {}\n签到情况: {}".format(
