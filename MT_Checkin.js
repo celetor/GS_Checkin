@@ -2,7 +2,7 @@
 //https://raw.githubusercontent.com/Wenmoux/checkbox/master/scripts/mt_sign.js
 
 const axios = require("axios");
-const mt_cookie = process.env['GLaDOS_Cookie'];   // 需要的环境变量
+const mt_cookie = process.env['MT_Cookie'];   // 需要的环境变量
 
 function mt() {
   return new Promise(async (resolve) => {
