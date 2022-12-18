@@ -1,4 +1,5 @@
 //mt论坛每日签到  https://bbs.binmt.cc/?fromuid=14593
+//https://raw.githubusercontent.com/Wenmoux/checkbox/master/scripts/mt_sign.js
 
 const axios = require("axios");
 const mt_cookie = process.env['GLaDOS_Cookie'];   // 需要的环境变量
