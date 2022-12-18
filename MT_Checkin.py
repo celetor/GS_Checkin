@@ -50,6 +50,7 @@ def checkin(mt_cookie):
             msg = "cookie失效"
     except Exception as e:
         msg = f"签到接口请求出错:{e}"
+    print(msg)
     wechat('MT论坛签到详情', msg)
 
 
