@@ -32,7 +32,7 @@ def checkin(mt_cookie):
         'authority': 'bbs.binmt.cc',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        'referer': 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot',
+        'referer': 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2',
         'sec-fetch-dest': 'document',
         'sec-fetch-mode': 'navigate',
         'sec-fetch-site': 'same-origin',
