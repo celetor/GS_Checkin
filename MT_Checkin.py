@@ -29,7 +29,10 @@ def checkin(mt_cookie):
         if len(arr) == 2:
             cookies[arr[0]] = arr[1]
     headers = {
-        "Referer": "https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2"
+        "referer": "https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2",
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) '
+                      'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0'
     }
     try:
         res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
@@ -37,9 +40,7 @@ def checkin(mt_cookie):
         if form_hash and res.find('登录') == -1:
             sign_url = f'https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=' + \
                        form_hash.group(1) + '&inajax=1&ajaxtarget=midaben_sign'
-            headers = {
-                "Referer": "https://bbs.binmt.cc/k_misign-sign.html"
-            }
+            headers['referer'] = "https://bbs.binmt.cc/k_misign-sign.html"
             res2 = requests.get(sign_url, headers=headers, cookies=cookies).text
             if res2.find('今日已签') > -1:
                 msg = "今天已经签到过啦"
@@ -62,3 +63,4 @@ if __name__ == '__main__':
         all_cookies = MT_Cookie.split('&&')
         for per_cookie in all_cookies:
             checkin(per_cookie)
+
