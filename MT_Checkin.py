@@ -37,6 +37,9 @@ def checkin(mt_cookie):
         if form_hash and res.find('登录') == -1:
             sign_url = f'https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=' + \
                        form_hash.group(1) + '&inajax=1&ajaxtarget=midaben_sign'
+            headers = {
+                "Referer": "https://bbs.binmt.cc/k_misign-sign.html"
+            }
             res2 = requests.get(sign_url, headers=headers, cookies=cookies).text
             if res2.find('今日已签') > -1:
                 msg = "今天已经签到过啦"
