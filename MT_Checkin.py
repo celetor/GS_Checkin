@@ -58,9 +58,12 @@ def checkin(mt_cookie):
                 except Exception as err:
                     msg = "今天已经签到过啦"
             elif res2.find('签到成功') > -1:
-                msg1 = re.search(r'获得随机奖励\s*\d+\s*金币', res2)
-                msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
-                msg = "签到成功\n" + msg1.group() + "\n" + msg2.group()
+                try:
+                    msg1 = re.search(r'获得随机奖励\s*\d+\s*金币', res2)
+                    msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
+                    msg = "签到成功\n" + msg1.group() + "\n" + msg2.group()
+                except Exception as err:
+                    msg = "签到成功"
             else:
                 msg = "签到失败!原因未知" + f"：\n{res2}"
         else:
