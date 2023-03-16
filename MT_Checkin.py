@@ -76,7 +76,7 @@ def checkin(mt_cookie):
                 try:
                     msg1 = re.search(r'连续签到[^>]*>\s*(\d+)\s*天<', res)
                     msg2 = re.search(r'累计签到[^>]*>\s*(\d+)\s*天<', res)
-                    message2 = f'今天已经签到过啦\n连续签到{msg1.group(1)}天\n累计签到{msg2.group(1)}天\n\n'
+                    message2 = f'今天已经签到过啦\n连续签到: {msg1.group(1)}天\n累计签到: {msg2.group(1)}天\n\n'
                 except Exception as err:
                     message2 = "今天已经签到过啦\n\n"
             elif res2.find('签到成功') > -1:
