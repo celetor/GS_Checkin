@@ -60,7 +60,6 @@ def checkin(mt_cookie):
     headers = HEADERS.copy()
     try:
         res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
-        print(res)
         form_hash = re.search(r'formhash=([^&]+)&', res)
         if form_hash and res.find('登录') == -1:
             try:
@@ -77,18 +76,18 @@ def checkin(mt_cookie):
                 try:
                     msg1 = re.search(r'连续签到[^>]*>\s*(\d+)\s*天<', res)
                     msg2 = re.search(r'累计签到[^>]*>\s*(\d+)\s*天<', res)
-                    message2 = f'今天已经签到过啦\n连续签到{msg1.group(1)}天\n累计签到{msg2.group(1)}天\n'
+                    message2 = f'今天已经签到过啦\n连续签到{msg1.group(1)}天\n累计签到{msg2.group(1)}天\n\n'
                 except Exception as err:
-                    message2 = "今天已经签到过啦\n"
+                    message2 = "今天已经签到过啦\n\n"
             elif res2.find('签到成功') > -1:
                 try:
                     msg1 = re.search(r'获得随机奖励\s*\d+\s*金币', res2)
                     msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
-                    message2 = "签到成功\n" + msg1.group() + "\n" + msg2.group() + "\n"
+                    message2 = "签到成功\n" + msg1.group() + "\n" + msg2.group() + "\n\n"
                 except Exception as err:
-                    message2 = "签到成功\n"
+                    message2 = "签到成功\n\n"
             else:
-                message2 = "签到失败!原因未知" + f"：\n{res2}\n"
+                message2 = "签到失败!原因未知" + f"：\n{res2}\n\n"
             message3 = get_point_info(cookies)
             msg = message1 + message2 + message3
         else:
@@ -104,3 +103,4 @@ if __name__ == '__main__':
         all_cookies = MT_Cookie.split('&&')
         for per_cookie in all_cookies:
             checkin(per_cookie)
+            
