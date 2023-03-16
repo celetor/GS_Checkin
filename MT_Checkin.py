@@ -51,9 +51,8 @@ def checkin(mt_cookie):
             res2 = requests.get(sign_url, headers=headers, cookies=cookies).text
             if res2.find('今日已签') > -1:
                 try:
-                    res3 = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
-                    msg1 = re.search(r'连续签到[^>]*>(\d+天)<', res3)
-                    msg2 = re.search(r'累计签到[^>]*>(\d+天)<', res3)
+                    msg1 = re.search(r'连续签到[^>]*>(\d+天)<', res)
+                    msg2 = re.search(r'累计签到[^>]*>(\d+天)<', res)
                     msg = '今天已经签到过啦\n连续签到' + msg1.group(1) + '\n累计签到' + msg2.group(1)
                 except Exception as err:
                     msg = "今天已经签到过啦"
