@@ -45,6 +45,12 @@ def checkin(mt_cookie):
         print(res)
         form_hash = re.search(r'formhash=([^&]+)&', res)
         if form_hash and res.find('登录') == -1:
+            try:
+                msg1 = re.search(r'<h2 class="fyy">([^<]+)<', res)
+                msg2 = re.search(r'comiis_tm">签到等级([^<]+)<', res)
+                msg = f'用户: {msg1.group(1)}\n等级: {msg2.group(1)}\n\n'
+            except Exception as err:
+                msg = '用户信息获取失败\n\n'
             sign_url = 'https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=' + \
                        form_hash.group(1) + '&inajax=1&ajaxtarget=midaben_sign'
             headers['referer'] = "https://bbs.binmt.cc/k_misign-sign.html"
@@ -53,18 +59,18 @@ def checkin(mt_cookie):
                 try:
                     msg1 = re.search(r'连续签到[^>]*>(\d+天)<', res)
                     msg2 = re.search(r'累计签到[^>]*>(\d+天)<', res)
-                    msg = '今天已经签到过啦\n连续签到' + msg1.group(1) + '\n累计签到' + msg2.group(1)
+                    msg += '今天已经签到过啦\n连续签到' + msg1.group(1) + '\n累计签到' + msg2.group(1)
                 except Exception as err:
-                    msg = "今天已经签到过啦"
+                    msg += "今天已经签到过啦"
             elif res2.find('签到成功') > -1:
                 try:
                     msg1 = re.search(r'获得随机奖励\s*\d+\s*金币', res2)
                     msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
-                    msg = "签到成功\n" + msg1.group() + "\n" + msg2.group()
+                    msg += "签到成功\n" + msg1.group() + "\n" + msg2.group()
                 except Exception as err:
-                    msg = "签到成功"
+                    msg += "签到成功"
             else:
-                msg = "签到失败!原因未知" + f"：\n{res2}"
+                msg += "签到失败!原因未知" + f"：\n{res2}"
         else:
             msg = "cookie失效"
     except Exception as e:
@@ -78,4 +84,5 @@ if __name__ == '__main__':
         all_cookies = MT_Cookie.split('&&')
         for per_cookie in all_cookies:
             checkin(per_cookie)
+
 
