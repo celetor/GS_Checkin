@@ -42,12 +42,12 @@ def checkin(mt_cookie):
     }
     try:
         res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
-        print(res)
+        # print(res)
         form_hash = re.search(r'formhash=([^&]+)&', res)
         if form_hash and res.find('登录') == -1:
             try:
                 msg1 = re.search(r'<h2 class="fyy">([^<]+)<', res)
-                msg2 = re.search(r'comiis_tm">签到等级([^<]+)<', res)
+                msg2 = re.search(r'comiis_tm">签到等级\s*([^<]+)<', res)
                 msg = f'用户: {msg1.group(1)}\n等级: {msg2.group(1)}\n\n'
             except Exception as err:
                 msg = '用户信息获取失败\n\n'
