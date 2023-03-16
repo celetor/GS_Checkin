@@ -42,13 +42,13 @@ def checkin(mt_cookie):
     }
     try:
         res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
+        print(res)
         form_hash = re.search(r'formhash=([^&]+)&', res)
         if form_hash and res.find('登录') == -1:
             sign_url = f'https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=' + \
                        form_hash.group(1) + '&inajax=1&ajaxtarget=midaben_sign'
             headers['referer'] = "https://bbs.binmt.cc/k_misign-sign.html"
             res2 = requests.get(sign_url, headers=headers, cookies=cookies).text
-            print(res2)
             if res2.find('今日已签') > -1:
                 msg = "今天已经签到过啦"
             elif res2.find('签到成功') > -1:
@@ -56,7 +56,7 @@ def checkin(mt_cookie):
                 msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
                 msg = "签到成功\n" + msg1.group() + "\n" + msg2.group()
             else:
-                msg = "签到失败!原因未知"
+                msg = "签到失败!原因未知" + f"：\n{res2}"
         else:
             msg = "cookie失效"
     except Exception as e:
