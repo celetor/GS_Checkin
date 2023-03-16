@@ -87,7 +87,7 @@ def checkin(mt_cookie):
                 except Exception as err:
                     message2 = "签到成功\n\n"
             else:
-                message2 = "签到失败!原因未知" + f"：\n{res2}\n\n"
+                message2 = "签到失败!原因未知" + f": \n{res2}\n\n"
             message3 = get_point_info(cookies)
             msg = message1 + message2 + message3
         else:
