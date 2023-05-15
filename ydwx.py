@@ -14,9 +14,7 @@ import os
 # 登录后搜索https://app.mixcapp.com/mixc/gateway域名随意一个 请求体里面的deviceParams，token 多账号填多个单引号里面 用英文逗号隔开
 QYWX_KEY = os.environ.get('QYWX_KEY')
 # 青龙变量 ydwx_deviceParams ydwx_token
-YDWX_BODY = os.environ.get('YDWX_BODY')
-# 推送加 token
-plustoken = os.getenv("plustoken")
+YDWX_BODY = 'mallNo=330281C001&appId=68a91a5bac6a4f3e91bf4b42856785c6&platform=h5&imei=2333&appVersion=3.32.0&osVersion=12.0.1&action=mixc.app.memberSign.signDate&apiVersion=1.0&timestamp=1684126791577&deviceParams=eyJwaG9uZSI6IiJ9&token=bc282fbcca714d8ab0400d07c47eb9ee&params=eyJtYWxsTm8iOiIzMzAyODFDMDAxIn0&sign=c124002de4782443be6a1ae7ab3b65ca'  # os.environ.get('YDWX_BODY')
 
 
 def wechat(title, text):
@@ -36,6 +34,8 @@ def wechat(title, text):
 
 
 def Push(contents):
+    # 推送加 token
+    plustoken = os.getenv("plustoken")
     if plustoken:
         # plustoken推送
         headers = {'Content-Type': 'application/json'}
@@ -48,7 +48,7 @@ def Push(contents):
 def checkin(ydwx_deviceParams, ydwx_token, mall='20014'):
     log = []
     for i in range(len(ydwx_deviceParams)):
-        # print(f'*****第{str(i + 1)}个账号*****')
+        print(f'*****第{str(i + 1)}个账号*****')
         timestamp = str(int(round(time.time() * 1000)))
         md5 = hashlib.md5()
         md52 = hashlib.md5()
@@ -85,6 +85,8 @@ def checkin(ydwx_deviceParams, ydwx_token, mall='20014'):
 if __name__ == '__main__':
     if YDWX_BODY and len(YDWX_BODY) > 0:
         all_body = YDWX_BODY.split('&&')
+        deviceParams_list = []
+        token_list = []
         print(f'共配置了{len(all_body)}个账号')
         for per_body in all_body:
             param = {}
@@ -94,4 +96,6 @@ if __name__ == '__main__':
                     param[arr[0]] = arr[1]
             deviceParams = param['deviceParams']
             token = param['token']
-            checkin([deviceParams], [token], '330281C001')
+            deviceParams_list.append(deviceParams)
+            token_list.append(token)
+        checkin(deviceParams_list, token_list, '330281C001')
