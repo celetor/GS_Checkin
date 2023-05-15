@@ -94,4 +94,4 @@ if __name__ == '__main__':
                     param[arr[0]] = arr[1]
             deviceParams = param['deviceParams']
             token = param['token']
-            checkin(deviceParams, token, '330281C001')
+            checkin([deviceParams], [token], '330281C001')
