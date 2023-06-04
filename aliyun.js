@@ -1,4 +1,5 @@
 //阿里云盘连续签到活动
+//https://github.com/wd210010/only_for_happly/blob/main/aliyun.py
 
 const $ = API();
 //const refresh_token = '';//抓包搜请求体关键字:refresh_token
