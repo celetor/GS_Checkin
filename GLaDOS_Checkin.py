@@ -87,7 +87,7 @@ class GladosCheckIn:
         if QYWX_KEY:
             url = f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={QYWX_KEY}'
             text = 'GlaDOS签到详情'
-            desp = "账号: {}\n剩余天数: {}\n流量: {}\n已用天数: {}\n签到情况: {}".format(
+            desp = "账号: {}\n剩余天数: {}\n已用流量: {}\n已用天数: {}\n签到情况: {}".format(
                 res["email"],
                 res["left_days"],
                 res["traffic"],
