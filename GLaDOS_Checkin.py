@@ -57,7 +57,7 @@ class GladosCheckIn:
     def print_result(self):
         print("账号: {}".format(self.res["email"]))
         print("剩余天数: {}".format(self.res["left_days"]))
-        print("流量: {}".format(self.res["traffic"]))
+        print("已用流量: {}".format(self.res["traffic"]))
         print("已用天数: {}".format(self.res["used_days"]))
         print("签到情况: {}".format(self.res["message"]))
         self.wechat(self.res)
