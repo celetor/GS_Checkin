@@ -44,7 +44,8 @@ class GladosCheckIn:
 
     def check_in(self):
 
-        data = {"token": "glados.one"}
+        tokens = ["glados.one", "glados.rocks", "glados.network"]
+        data = {"token": tokens[0]}
 
         resp = requests.post(url=CHECK_IN_URL, data=data, headers=self.headers, cookies=self.cookies)
         resp.raise_for_status()
