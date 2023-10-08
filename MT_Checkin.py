@@ -1,8 +1,17 @@
+# coding=utf-8
+import html
 import os
 import re
 import requests
+import urllib.parse
 
+# 以下两种登录方式二选一
+# cookie登录
 MT_Cookie = os.environ.get('MT_Cookie')
+# 账号密码登录
+MT_USER = os.environ.get('MT_USER')
+MT_PWD = os.environ.get('MT_PWD')
+
 QYWX_KEY = os.environ.get('QYWX_KEY')
 
 HEADERS = {
@@ -51,12 +60,95 @@ def get_point_info(cookies):
     return message
 
 
+def escape(s):
+    rep = [{'key': '&lt;', 'val': '<'}, {'key': '&gt;', 'val': '>'}, {'key': '&nbsp;', 'val': ' '},
+           {'key': '&amp;', 'val': '&'}, {'key': '&quot;', 'val': '"'}]
+    for r in rep:
+        s = s.replace(r['key'], r['val'])
+    return s
+
+
+def url_encode(s):
+    return urllib.parse.quote(s)
+
+
+def login(ueser, password, cookies):
+    request = requests.session()
+    try:
+        headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0',
+        }
+        url = 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot&mobile=2'
+        res = request.get(url, headers=headers, cookies=cookies)
+        cookies.update(res.cookies)
+
+        url = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2'
+        headers = HEADERS.copy()
+        headers['referer'] = 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot&mobile=2'
+        headers[
+            'Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
+        res = request.get(url, headers=headers, cookies=cookies)
+        cookies.update(res.cookies)
+        text = res.text
+        url = 'https://bbs.binmt.cc/' + escape(
+            re.search(r'method=["\']post["\']\s+action=["\']([^\'"]+)', text).group(
+                1)) + '&handlekey=loginform&inajax=1'
+        form_hash = re.search(r'id=["\']formhash["\']\s+value=["\']([^"\']+)', text).group(1)
+        referer = re.search(r'id=["\']referer["\']\s+value=["\']([^"\']+)', text).group(1)
+        fast_login_field = re.search(r'name=["\']fastloginfield["\']\s+value=["\']([^"\']+)', text).group(1)
+        cookie_time = re.search(r'name=["\']cookietime["\']\s+value=["\']([^"\']+)', text).group(1)
+        data = {
+            'formhash': form_hash,
+            'referer': referer,
+            'fastloginfield': fast_login_field,
+            'cookietime': cookie_time,
+            'username': ueser,
+            'password': password,
+            'questionid': '0',
+            'answer': ''
+        }
+        headers = {
+            'Accept': 'application/xml, text/xml, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Origin': 'https://bbs.binmt.cc',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Dest': 'empty',
+            'Referer': 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0',
+        }
+        res = request.post(url, data=data, headers=headers, cookies=cookies)
+        cookies.update(res.cookies)
+        text = res.text
+        if text.find('欢迎您回来') > -1:
+            user_info = re.search(r"{'username'[^}]+", text).group()
+            print(user_info)
+            url = re.search(r"location\.href\s*=\s*[\"']([^\"']+)", text).group(1)
+            headers['referer'] = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2'
+            res = request.post(url, headers=headers, cookies=cookies)
+            cookies.update(res.cookies)
+            text = res.text
+            return text.find('class="fyy"') > -1
+    except Exception as e:
+        print('login', e)
+    return False
+
+
 def checkin(mt_cookie):
     cookies = {}
-    for kv in re.split(r';\s*', mt_cookie):
-        arr = kv.split('=')
-        if len(arr) == 2:
-            cookies[arr[0]] = arr[1]
+    if isinstance(mt_cookie, str):
+        for kv in re.split(r';\s*', mt_cookie):
+            arr = kv.split('=')
+            if len(arr) == 2:
+                cookies[arr[0]] = arr[1]
+    else:
+        cookies = mt_cookie
     headers = HEADERS.copy()
     try:
         res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
@@ -104,4 +196,13 @@ if __name__ == '__main__':
     if MT_Cookie and len(MT_Cookie) > 0:
         all_cookies = MT_Cookie.split('&&')
         for per_cookie in all_cookies:
+            checkin(per_cookie)
+
+    if MT_USER and MT_PWD:
+        mt_users = MT_USER.split('&&')
+        mt_pwd = MT_PWD.split('&&')
+        for i in range(len(mt_users)):
+            per_cookie = {}
+            login(mt_users[i], mt_pwd[i], per_cookie)
+            print(per_cookie)
             checkin(per_cookie)
