@@ -5,7 +5,7 @@ import re
 import requests
 import urllib.parse
 
-# 以下两种登录方式二选一
+# 以下两种登录方式二选一或同时使用
 # cookie登录
 MT_Cookie = os.environ.get('MT_Cookie')
 # 账号密码登录
@@ -73,7 +73,7 @@ def url_encode(s):
 
 
 def login(ueser, password, cookies):
-    request = requests.session()
+    session = requests.session()
     try:
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -82,16 +82,14 @@ def login(ueser, password, cookies):
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0',
         }
         url = 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot&mobile=2'
-        res = request.get(url, headers=headers, cookies=cookies)
-        cookies.update(res.cookies)
+        session.get(url, headers=headers)
 
         url = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2'
         headers = HEADERS.copy()
         headers['referer'] = 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot&mobile=2'
         headers[
             'Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
-        res = request.get(url, headers=headers, cookies=cookies)
-        cookies.update(res.cookies)
+        res = session.get(url, headers=headers)
         text = res.text
         url = 'https://bbs.binmt.cc/' + escape(
             re.search(r'method=["\']post["\']\s+action=["\']([^\'"]+)', text).group(
@@ -123,18 +121,17 @@ def login(ueser, password, cookies):
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0',
         }
-        res = request.post(url, data=data, headers=headers, cookies=cookies)
-        cookies.update(res.cookies)
+        res = session.post(url, data=data, headers=headers)
         text = res.text
         if text.find('欢迎您回来') > -1:
-            user_info = re.search(r"{'username'[^}]+", text).group()
-            print(user_info)
+            # user_info = re.search(r"{'username'[^}]+", text).group()
+            # print(user_info)
             url = re.search(r"location\.href\s*=\s*[\"']([^\"']+)", text).group(1)
             headers['referer'] = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2'
-            res = request.post(url, headers=headers, cookies=cookies)
-            cookies.update(res.cookies)
-            text = res.text
-            return text.find('class="fyy"') > -1
+            session.post(url, headers=headers)
+            # cookies = requests.utils.dict_from_cookiejar(session.cookies)
+            cookies.update(session.cookies)
+            return True
     except Exception as e:
         print('login', e)
     return False
@@ -196,6 +193,7 @@ if __name__ == '__main__':
     if MT_Cookie and len(MT_Cookie) > 0:
         all_cookies = MT_Cookie.split('&&')
         for per_cookie in all_cookies:
+            print('cookies登录')
             checkin(per_cookie)
 
     if MT_USER and MT_PWD:
@@ -203,6 +201,7 @@ if __name__ == '__main__':
         mt_pwd = MT_PWD.split('&&')
         for i in range(len(mt_users)):
             per_cookie = {}
-            login(mt_users[i], mt_pwd[i], per_cookie)
-            print(per_cookie)
-            checkin(per_cookie)
+            print('账号密码登录')
+            if login(mt_users[i], mt_pwd[i], per_cookie):
+                # print(per_cookie)
+                checkin(per_cookie)
