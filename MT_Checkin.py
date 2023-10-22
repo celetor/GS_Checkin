@@ -85,11 +85,7 @@ def login(ueser, password, cookies):
         session.get(url, headers=headers)
 
         url = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2'
-        headers = HEADERS.copy()
-        headers['referer'] = 'https://bbs.binmt.cc/forum.php?mod=guide&view=hot&mobile=2'
-        headers[
-            'Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
-        res = session.get(url, headers=headers)
+        res = session.get(url)
         text = res.text
         url = 'https://bbs.binmt.cc/' + escape(
             re.search(r'method=["\']post["\']\s+action=["\']([^\'"]+)', text).group(
@@ -108,20 +104,7 @@ def login(ueser, password, cookies):
             'questionid': '0',
             'answer': ''
         }
-        headers = {
-            'Accept': 'application/xml, text/xml, */*; q=0.01',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://bbs.binmt.cc',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Dest': 'empty',
-            'Referer': 'https://bbs.binmt.cc/member.php?mod=logging&action=login&mobile=2',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/110.0.0.0',
-        }
-        res = session.post(url, data=data, headers=headers)
+        res = session.post(url, data=data)
         text = res.text
         if text.find('欢迎您回来') > -1:
             # user_info = re.search(r"{'username'[^}]+", text).group()
@@ -141,7 +124,7 @@ def checkin(mt_cookie):
     cookies = {}
     if isinstance(mt_cookie, str):
         for kv in re.split(r';\s*', mt_cookie):
-            arr = kv.split('=')
+            arr = kv.split('=', 1)
             if len(arr) == 2:
                 cookies[arr[0]] = arr[1]
     else:
@@ -167,16 +150,17 @@ def checkin(mt_cookie):
                 try:
                     msg1 = re.search(r'连续签到[^>]*>\s*(\d+)\s*天<', res)
                     msg2 = re.search(r'累计签到[^>]*>\s*(\d+)\s*天<', res)
-                    message2 = f'今天已经签到过啦\n连续签到: {msg1.group(1)}天\n累计签到: {msg2.group(1)}天\n\n'
-                except Exception:
-                    message2 = "今天已经签到过啦\n\n"
-            elif res2.find('签到成功') > -1 or res2.find('已签到') > -1:
+                    message2 = f'今天已经签过到啦\n连续签到: {msg1.group(1)}天\n累计签到: {msg2.group(1)}天\n\n'
+                except Exception as e:
+                    message2 = f"今天已经签过到啦 {e}\n\n"
+            elif res2.find('已签到') > -1:
                 try:
-                    msg1 = re.search(r'获得随机奖励\s*\d+\s*金币', res2)
-                    msg2 = re.search(r'已累计签到\s*\d+\s*天', res2)
-                    message2 = "签到成功\n" + msg1.group() + "\n" + msg2.group() + "\n\n"
-                except Exception:
-                    message2 = "签到成功\n\n"
+                    res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
+                    msg1 = re.search(r'连续签到[^>]*>\s*(\d+)\s*天<', res)
+                    msg2 = re.search(r'累计签到[^>]*>\s*(\d+)\s*天<', res)
+                    message2 = f'签到成功\n连续签到: {msg1.group(1)}天\n累计签到: {msg2.group(1)}天\n\n'
+                except Exception as e:
+                    message2 = f"签到成功 {e}\n\n"
             else:
                 message2 = f"签到失败!原因: \n{res2}\n\n"
             message3 = get_point_info(cookies)
