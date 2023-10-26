@@ -154,13 +154,7 @@ def checkin(mt_cookie):
                 except Exception as e:
                     message2 = f"今天已经签过到啦 {e}\n\n"
             elif res2.find('已签到') > -1:
-                try:
-                    res = requests.get("https://bbs.binmt.cc/k_misign-sign.html", headers=headers, cookies=cookies).text
-                    msg1 = re.search(r'连续签到[^>]*>\s*(\d+)\s*天<', res)
-                    msg2 = re.search(r'累计签到[^>]*>\s*(\d+)\s*天<', res)
-                    message2 = f'签到成功\n连续签到: {msg1.group(1)}天\n累计签到: {msg2.group(1)}天\n\n'
-                except Exception as e:
-                    message2 = f"签到成功 {e}\n\n"
+                message2 = f'签到成功\n\n'
             else:
                 message2 = f"签到失败!原因: \n{res2}\n\n"
             message3 = get_point_info(cookies)
