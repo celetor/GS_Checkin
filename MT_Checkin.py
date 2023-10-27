@@ -1,5 +1,5 @@
 # coding=utf-8
-import html
+import time
 import os
 import re
 import requests
@@ -55,8 +55,8 @@ def get_point_info(cookies):
         msg3 = re.search(r'好评:\s*</span>\s*(\d+)\s*<', res3)
         msg4 = re.search(r'信誉:\s*</span>\s*(\d+)\s*<', res3)
         message = f'积分: {msg1.group(1)}\n金币: {msg2.group(1)}\n好评: {msg3.group(1)}\n信誉: {msg4.group(1)}'
-    except Exception:
-        message = ''
+    except Exception as e:
+        message = f'{e}'
     return message
 
 
@@ -157,6 +157,7 @@ def checkin(mt_cookie):
                 message2 = f'签到成功\n\n'
             else:
                 message2 = f"签到失败!原因: \n{res2}\n\n"
+            time.sleep(1)
             message3 = get_point_info(cookies)
             msg = message1 + message2 + message3
         else:
