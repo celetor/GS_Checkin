@@ -19,8 +19,8 @@ Iku_pwd = os.environ.get('Iku_pwd')
 
 class Iku:
     def __init__(self):
-        # https://ikuuu.uk
-        self._host = 'https://ikuuu.art'
+        # https://ikuuu.boo
+        self._host = 'https://ikuuu.me'
         self._session = requests.session()
         self._session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -64,7 +64,13 @@ class Iku:
 
     def login_by_pwd(self, email: str, password: str):
         url = self._host + '/auth/login'
-        self._session.get(url, allow_redirects=False)
+        response = self._session.get(url, allow_redirects=False)
+        matcher = re.search(r'跳转到最新域名[:：]\s*(ikuuu[^</]+)', response.content.decode())
+        if matcher:
+            self._host = f'https://{matcher.group(1)}'
+            self.msg += f'域名已更新: {self._host}\n'
+            print(f'域名已更新: {self._host}')
+            url = self._host + '/auth/login'
         data = {
             'email': email,
             'passwd': password,
@@ -89,16 +95,16 @@ class Iku:
         url = self._host + '/user'
         try:
             res = self._session.get(url, allow_redirects=False).text
-            time = self._format(re.search(r'会员时长([\w\W]*?)<li', res).group(1))
+            duration = self._format(re.search(r'会员时长([\w\W]*?)<li', res).group(1))
             traffic = self._format(re.search(r'剩余流量([\w\W]*?)<li', res).group(1))
             used = self._format(re.search(r'今日已用\s*[:：]([^<]+)', res).group(1))
             o = {
-                '会员时长': time,
+                '会员时长': duration,
                 '剩余流量': traffic,
                 '今日已用': used
             }
             print(o)
-            self.msg += f'会员时长: {time}\n剩余流量: {traffic}\n今日已用: {used}\n'
+            self.msg += f'会员时长: {duration}\n剩余流量: {traffic}\n今日已用: {used}\n'
         except Exception as e:
             print('/user', e)
             self.msg += f'/user异常: {e}\n'
@@ -132,9 +138,13 @@ if __name__ == '__main__':
         all_cookies = Iku_Cookie.split('&&')
         for per_cookie in all_cookies:
             obj = Iku()
-            if obj.login_by_cookie(per_cookie):
-                obj.checkin()
-                obj.get_user_info()
+            try:
+                if obj.login_by_cookie(per_cookie):
+                    obj.checkin()
+                    obj.get_user_info()
+            except Exception as e:
+                print(e)
+                obj.msg += f'异常: {e}'
             obj.send_msg()
 
     if Iku_mail and Iku_pwd:
@@ -142,8 +152,12 @@ if __name__ == '__main__':
         all_pwd = Iku_pwd.split('&&')
         for i in range(len(all_mail)):
             obj = Iku()
-            if obj.login_by_pwd(all_mail[i], all_pwd[i]):
-                obj.checkin()
-                obj.get_user_info()
-                obj.logout()
+            try:
+                if obj.login_by_pwd(all_mail[i], all_pwd[i]):
+                    obj.checkin()
+                    obj.get_user_info()
+                    obj.logout()
+            except Exception as e:
+                print(e)
+                obj.msg += f'\n异常: {e}'
             obj.send_msg()
