@@ -198,7 +198,7 @@ if __name__ == '__main__':
         for i in range(len(mt_users)):
             per_cookie = {}
             print('账号密码登录')
-            msg_send = ''
+            msg_send = '账号密码登录失败，异常未知'
             try:
                 is_login = login(mt_users[i], mt_pwd[i], per_cookie)
             except Exception as e:
