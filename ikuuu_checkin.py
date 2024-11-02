@@ -19,8 +19,8 @@ Iku_pwd = os.environ.get('Iku_pwd')
 
 class Iku:
     def __init__(self):
-        # https://ikuuu.boo
-        self._host = 'https://ikuuu.me'
+        # https://ikuuu.me
+        self._host = 'https://ikuuu.one'
         self._session = requests.session()
         self._session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
